@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "easyeda2kicad")(type "KiCad")(uri "/home/maan/kicadproj/wireslesslock/easyeda2kicad.kicad_sym")(options "")(descr "LCSC parts converted via easyeda2kicad (BQ24040, TPS63020, TPS55340)"))
+)
