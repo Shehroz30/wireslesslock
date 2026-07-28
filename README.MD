@@ -7,11 +7,11 @@ Onshape link: https://cad.onshape.com/documents/6c2c18833c9d8444570c43c7/w/6a4bb
 
 
 This is the PCB in it's enclosure. I"m building this into an existing bike lock framework, so all I need to do is create the bike lock pcb and the padlock. 
-![image placeholder](image.png)
+![image placeholder](docs/image.png)
 
 
 This is the padlock with the latching solenoid
-![padlock](image-1.png)
+![padlock](docs/image-1.png)
 
 ## Flashing the firmware
 
