@@ -1,7 +1,7 @@
 # Wireless bike lock
 
-A bike lock you open from your phone — no key, no combination. An ESP32-S3 hosts a small
-web page over WiFi; hitting **Open** fires a latching solenoid inside a padlock body. The
+A bike lock you open from your phone: no key, no combination. An ESP32-S3 hosts a small
+web page over WiFi, and hitting Open fires a latching solenoid inside a padlock body. The
 same page shows live accelerometer and GPS readings, so the lock can tell you it's being
 moved and where it is.
 
@@ -42,29 +42,29 @@ USB-C (J1, 5V) ──> U1 BQ24040 ──> Li-ion cell (J2)
                                        └── R7 10k pullup -> U3 EN        └──> U4 TPS55340 boost ──> +12V (solenoid)
 ```
 
-- **Charging** — `U1` (BQ24040) takes 5 V from USB-C and charges the cell. `R1` (560 Ω on
-  ISET) sets the fast-charge current; `D1`/`D2` are its status outputs. `R2`/`R3` are the
-  5.1 k CC pulldowns that make a USB-C source hand over 5 V, and `U2` (USBLC6-2SC6) clamps
-  ESD on D+/D−.
-- **3.3 V rail** — `U3` (TPS63020) is a *buck-boost*, deliberately: a Li-ion cell sags from
-  4.2 V down past 3.3 V as it discharges, so a plain buck would brown out the ESP32 long
-  before the cell was empty. Output set by `R9` (1 M) / `R10` (180 k) around the 0.5 V
-  reference → 3.28 V. Inductor is `L2` (2.2 µH).
-- **12 V solenoid rail** — `U4` (TPS55340) boosts 3.3 V to 12 V through `L1` (10 µH) and
-  `D3`. Set by `R12` (86.6 k) / `R13` (10 k) around the 1.229 V reference → ≈11.9 V.
-  It's a separate rail so the solenoid's inrush hits bulk caps (`C12`/`C14`/`C16`) and not
-  the MCU supply.
+`U1` (BQ24040) takes 5 V from USB-C and charges the cell. `R1` (560 Ω on ISET) sets the
+fast-charge current; `D1`/`D2` are its status outputs. `R2`/`R3` are the 5.1 k CC pulldowns
+that make a USB-C source hand over 5 V, and `U2` (USBLC6-2SC6) clamps ESD on D+/D−.
+
+The 3.3 V rail comes off `U3` (TPS63020), a *buck-boost* on purpose: a Li-ion cell sags from
+4.2 V down past 3.3 V as it discharges, so a plain buck would brown out the ESP32 long
+before the cell was empty. Output is set by `R9` (1 M) / `R10` (180 k) around the 0.5 V
+reference → 3.28 V. Inductor is `L2` (2.2 µH).
+
+For the solenoid, `U4` (TPS55340) boosts 3.3 V to 12 V through `L1` (10 µH) and `D3`, set by
+`R12` (86.6 k) / `R13` (10 k) around the 1.229 V reference → ≈11.9 V. It's a separate rail so
+the solenoid's inrush hits bulk caps (`C12`/`C14`/`C16`) and not the MCU supply.
 
 ### Solenoid drive
 
 `CTRL_P` (GPIO40) → `R18` (220 Ω gate series) → `Q1` (AO3400A, low-side N-ch FET). `R17`
 (10 k) pulls the gate down so the coil is guaranteed off through boot and reset. `D4` (S1M)
 is the flyback diode across the coil. The coil itself lands on `TP1` (+12 V) and `TP2`
-(Q1 drain) — the two loop test points on the board.
+(Q1 drain), the two loop test points on the board.
 
-There is **no hold-current limiting in hardware**. The firmware caps how long the coil can
-stay energized (`MAX_OPEN_MS`, 5 s) instead. If you drive `CTRL_P` from your own code,
-keep that limit.
+There is no hold-current limiting in hardware. The firmware caps how long the coil can stay
+energized instead (`MAX_OPEN_MS`, 5 s). If you drive `CTRL_P` from your own code, keep that
+limit.
 
 ### GPS
 
@@ -74,8 +74,6 @@ antenna, fed through a pi matching network: shunt `C22`, series `R19` (0 Ω), sh
 
 ## Pin map (U5, ESP32-S3-WROOM-1)
 
-Derived by parsing `wireslesslock.kicad_sch` directly, not by reading the rendered
-schematic image — the printed pin numbers are too small to read reliably.
 
 | Net | GPIO | Goes to |
 |---|---|---|
@@ -84,7 +82,7 @@ schematic image — the printed pin numbers are too small to read reliably.
 | `SPI_MOSI` | 11 | LIS2DH12 SDI |
 | `SPI_SCK` | 12 | LIS2DH12 SPC |
 | `SPI_MISO` | 13 | LIS2DH12 SDO |
-| `UART1_RX` | 17 | SIM68M TXD0 — primary NMEA out |
+| `UART1_RX` | 17 | SIM68M TXD0, primary NMEA out |
 | `UART1_TX` | 18 | SIM68M RXD0 |
 | `UART0_RX` / `UART0_TX` | 6 / 7 | SIM68M secondary/debug UART |
 | `BOOT` | 0 | SW3 tactile |
@@ -96,9 +94,9 @@ detection is by polling, not interrupt.
 
 ## Firmware
 
-`firmware/wireslesslock_controller/wireslesslock_controller.ino` — Arduino sketch. It joins
-your WiFi, serves a page on port 80, and polls `/data` once a second for accelerometer +
-GPS values. No cloud, no backend; the lock is only reachable on your local network.
+The sketch is `firmware/wireslesslock_controller/wireslesslock_controller.ino`. It joins your
+WiFi, serves a page on port 80, and polls `/data` once a second for accelerometer + GPS
+values. No cloud, no backend; the lock is only reachable on your local network.
 
 | Route | Method | Does |
 |---|---|---|
@@ -109,22 +107,22 @@ GPS values. No cloud, no backend; the lock is only reachable on your local netwo
 
 ### Flashing
 
-1. Arduino IDE → Boards Manager → install the **esp32** package.
-2. Library Manager → install **TinyGPSPlus** (Mikal Hart). Everything else ships with the
+1. Arduino IDE → Boards Manager → install the esp32 package.
+2. Library Manager → install TinyGPSPlus (Mikal Hart). Everything else ships with the
    ESP32 core.
 3. Set `WIFI_SSID` / `WIFI_PASS` at the top of the sketch.
-4. Plug in over USB, pick the board and port under **Tools**, hit **Upload**.
+4. Plug in over USB, pick the board and port under Tools, hit Upload.
 
-If it sticks on `Connecting...`: hold **BOOT** (SW3), tap **RESET** (SW2), release BOOT.
-"Done uploading" means it's already running — open the serial monitor at 115200 to see the
-IP address it got.
+If it sticks on `Connecting...`: hold BOOT (SW3), tap RESET (SW2), release BOOT. "Done
+uploading" means it's already running, so open the serial monitor at 115200 to see the IP
+address it got.
 
 ## Building the board
 
 `gerbers.zip` is ready to send to a fab house as-is: 4 layer, 1.6 mm, 50 × 50 mm.
 
-For assembly, `production/` holds what a PCBA service wants — `bom.csv`, `positions.csv`,
-`designators.csv`, `netlist.ipc`. These are generated by the KiCad **Fabrication Toolkit**
+For assembly, `production/` holds what a PCBA service wants: `bom.csv`, `positions.csv`,
+`designators.csv`, `netlist.ipc`. These are generated by the KiCad Fabrication Toolkit
 plugin (settings in `fabrication-toolkit-options.json`); re-run the plugin rather than
 editing the CSVs by hand.
 
@@ -135,7 +133,7 @@ fit the padlock body.
 
 67 placements, 44 lines. Machine-readable copy with purchase links: [BOM.csv](BOM.csv).
 `production/bom.csv` is the plugin-generated original and stays the ground truth for
-designators and values — this table is that file plus what each part is for.
+designators and values; this table is that file plus what each part is for.
 
 | Designator | Qty | Value | Footprint | Function | LCSC |
 |---|---|---|---|---|---|
@@ -201,7 +199,7 @@ wireslesslock.kicad_pcb      4-layer board layout
 easyeda2kicad.*              project-local library: parts converted from LCSC/EasyEDA
                              (BQ24040, TPS63020, TPS55340, GPS antenna, WSON/VSON pkgs)
 BOM.csv                      annotated BOM (this README's table)
-production/                  generated fab outputs — plugin output, not source
+production/                  generated fab outputs (plugin output, not source)
 gerbers.zip                  fab package, ready to order
 firmware/                    ESP32-S3 Arduino sketch
 3dfiles/                     STEP export + padlock mechanism snapshots from Onshape
@@ -210,13 +208,13 @@ archive/                     timestamped project backups
 ```
 
 If you touch a symbol from `easyeda2kicad.kicad_sym`, keep its footprint in
-`easyeda2kicad.pretty/` and its STEP/WRL in `easyeda2kicad.3dshapes/` in sync — they travel
+`easyeda2kicad.pretty/` and its STEP/WRL in `easyeda2kicad.3dshapes/` in sync. They travel
 together.
 
 ## Verifying changes
 
-There's no build or test command here. Open the project in KiCad and run **ERC** on the
-schematic and **DRC** on the board.
+There's no build or test command here. Open the project in KiCad and run ERC on the
+schematic and DRC on the board.
 
 ## License
 
