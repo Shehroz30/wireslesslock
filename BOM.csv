@@ -1,0 +1,45 @@
+Designator,Qty,Value,Footprint,Function,LCSC Part #,Purchase Link
+"C1, C2",2,1uf,0603,"USB VBUS / charger input bulk decoupling (U1 BQ24040 IN, OUT)",C15849,https://www.lcsc.com/search?q=C15849
+C10,1,100nF,0402,ESP32-S3 (U5) supply decoupling,C1525,https://www.lcsc.com/search?q=C1525
+"C11, C19, C21, C7",4,0.1uF,0603,"General IC decoupling (U4 VIN/VCC, GPS, accel)",C14663,https://www.lcsc.com/search?q=C14663
+"C12, C14, C16, C5",4,4.7uF,1206,12V solenoid rail bulk output caps (U4 boost output),C29823,https://www.lcsc.com/search?q=C29823
+"C13, C15, C17",3,22uf,0805,3.3V rail bulk output caps (U3 buck-boost output),C45783,https://www.lcsc.com/search?q=C45783
+"C18, C26, C27, C3, C8",5,100nF,0603,"Local HF decoupling, 3.3V rail",C14663,https://www.lcsc.com/search?q=C14663
+C20,1,22uF,1206,3.3V bulk reservoir for RF/GPS current bursts,C12891,https://www.lcsc.com/search?q=C12891
+"C22, R19",2,0,0402,GPS antenna pi-match: shunt cap + series 0R (U8 -> U6 GNSS_ANT),C1952,https://www.lcsc.com/search?q=C1952
+C23,1,4.7uF,0402,"3.3V decoupling, SIM68M GPS module (U6)",C23733,https://www.lcsc.com/search?q=C23733
+"C28, C4, C6",3,10uF,0603,"Mid-value decoupling, battery and 3.3V rails",C19702,https://www.lcsc.com/search?q=C19702
+C9,1,0.047uF,0603,TPS55340 (U4) soft-start cap on SS pin,C1622,https://www.lcsc.com/search?q=C1622
+"D1, D2, D5",3,LED,0603,"Status LEDs: D1/D2 = BQ24040 CHG/PGOOD, D5 = MCU-driven (via Q2)",C2290,https://www.lcsc.com/search?q=C2290
+D3,1,D_Schottky,SMA_L4.3-W2.7-LS5.1-RD,Boost rectifier for U4 (SW node -> +12V),C8678,https://www.lcsc.com/search?q=C8678
+D4,1,S1M,SMA_L4.3-W2.7-LS5.1-RD,Flyback/freewheel diode across the solenoid coil,C51898151,https://www.lcsc.com/search?q=C51898151
+J1,1,MC-311D,USB-C-SMD_MC-311D,USB-C receptacle: 5V charge input + native USB D+/D-,C136423,https://www.lcsc.com/search?q=C136423
+J2,1,BATTERY,CONN-TH_S2B-PH-K-S-GW,JST-PH 2-pin Li-ion battery connector,C157932,https://www.lcsc.com/search?q=C157932
+L1,1,10uH,IND-SMD_L7.2-W6.6_GPSR07X0,10uH boost inductor for U4 (+3.3V -> +12V),C5189958,https://www.lcsc.com/search?q=C5189958
+L2,1,2.2uH,L1008,2.2uH buck-boost inductor for U3 (TPS63020 L1/L2 pins),C86092,https://www.lcsc.com/search?q=C86092
+L4,1,18nH,0402,"18nH shunt inductor, GPS antenna matching network",C86060,https://www.lcsc.com/search?q=C86060
+Q1,1,AO3400A,SOT-23,"N-ch FET, low-side solenoid driver (gate = CTRL_P / GPIO40)",C20917,https://www.lcsc.com/search?q=C20917
+Q2,1,DTC143Z,SOT-323_SC-70,Digital NPN (built-in bias) driving status LED D5 from net TM,C53066,https://www.lcsc.com/search?q=C53066
+R1,1,560,0603,BQ24040 ISET: sets fast-charge current,C23204,https://www.lcsc.com/search?q=C23204
+R10,1,180k,0603,"U3 (TPS63020) feedback divider, bottom leg -> 3.3V out",C22827,https://www.lcsc.com/search?q=C22827
+R11,1,75k,0603,U4 (TPS55340) FREQ pin: switching frequency set,C23242,https://www.lcsc.com/search?q=C23242
+R12,1,86.6K,0603,"U4 feedback divider, top leg from +12V",C23121,https://www.lcsc.com/search?q=C23121
+"R13, R16, R7",3,10k,0603,"R13 = U4 FB bottom leg (12V), R16 = RST pullup, R7 = U3 EN pullup",C25804,https://www.lcsc.com/search?q=C25804
+R17,1,10k,0402,Gate pulldown on CTRL_P (holds solenoid off during boot/reset),C60489,https://www.lcsc.com/search?q=C60489
+R18,1,220,0402,Gate series resistor for Q1,C25091,https://www.lcsc.com/search?q=C25091
+"R2, R3",2,5.1k,0402,USB-C CC1/CC2 5.1k pulldowns (advertise 5V sink),C25905,https://www.lcsc.com/search?q=C25905
+R20,1,1k,0402,Series resistor for status LED D5,C11702,https://www.lcsc.com/search?q=C11702
+"R4, R5",2,1k,0603,Series resistors for charge-status LEDs D1/D2,C21190,https://www.lcsc.com/search?q=C21190
+R8,1,2k,0603,U4 COMP network resistor (loop compensation),C22975,https://www.lcsc.com/search?q=C22975
+R9,1,1M,0603,"U3 feedback divider, top leg from 3.3V out",C22935,https://www.lcsc.com/search?q=C22935
+"SW2, SW3",2,TS-1088-AR02016,SW-SMD_L3.9-W3.0-P4.45,"Tactile switches: SW2 = RESET (EN), SW3 = BOOT (IO0)",C720477,https://www.lcsc.com/search?q=C720477
+TP1,1,VCC_SOL,TestPoint_Loop_D3.80mm_Drill2.8mm,Test point / solenoid output: +12V,,
+TP2,1,GND_SOL,TestPoint_Loop_D3.80mm_Drill2.8mm,Test point / solenoid output: switched low side (Q1 drain),,
+U1,1,BQ24040DSQR,WSON-10_L2.0-W2.0-P0.40-BL-EP,Li-ion linear charge management IC (USB 5V -> battery),C81080,https://www.lcsc.com/search?q=C81080
+U2,1,USBLC6-2SC6,SOT-23-6,USB D+/D- ESD protection array,C2827654,https://www.lcsc.com/search?q=C2827654
+U3,1,TPS63020DSJR,VSON-14_L4.0-W3.0-P0.50-BL-EP_TI_DSJ,Buck-boost converter: battery (2.5-5.5V) -> 3.3V system rail,C15483,https://www.lcsc.com/search?q=C15483
+U4,1,TPS55340RTER,VQFN-16_L3.0-W3.0-P0.50-BL-EP1.7,Boost converter: 3.3V -> 12V solenoid rail,C169167,https://www.lcsc.com/search?q=C169167
+U5,1,ESP32-S3-WROOM-1,ESP32-S3-WROOM-1,"Main MCU/radio: ESP32-S3, WiFi + BLE, hosts the control page",C2913202,https://www.lcsc.com/search?q=C2913202
+U6,1,SIM68M,GPSM-SMD_18P-L10.1-W9.7-P1.10,"GNSS receiver module, NMEA out over UART at 9600 baud",C2999762,https://www.lcsc.com/search?q=C2999762
+U7,1,LIS2DH12TR,LGA-12_L2.0-W2.0-P0.50-BL,3-axis accelerometer (SPI) - tamper / motion detection,C110926,https://www.lcsc.com/search?q=C110926
+U8,1,GPS1003,ANT-SMD_L10.0-W3.0,"SMD GPS patch antenna, 1575.42 MHz",C239243,https://www.lcsc.com/search?q=C239243
