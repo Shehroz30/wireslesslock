@@ -1,23 +1,21 @@
 # Wireless bike lock
 
-A bike lock you open from your phone: no key, no combination. An ESP32-S3 hosts a small
-web page over WiFi, and hitting Open fires a latching solenoid inside a padlock body. The
-same page shows live accelerometer and GPS readings, so the lock can tell you it's being
-moved and where it is.
+An ESP32-S3 hosts a web page over WiFi; the Open control energizes a latching solenoid in a
+padlock body. The page also reports accelerometer and GPS readings.
 
-This is built into an existing bike lock frame, so the project is only the two parts that
-don't exist off the shelf: the control PCB and the padlock.
+The design covers two parts: the control PCB and the padlock. The rest is an existing bike
+lock frame.
 
-Mechanical design (enclosure + padlock body) lives in Onshape:
+Mechanical design (enclosure and padlock body) is in Onshape:
 <https://cad.onshape.com/documents/6c2c18833c9d8444570c43c7/w/6a4bb112d0b0db7159f785b0/e/d206a90808809049c3ae2997?renderMode=0&uiState=6a67dae82bed96ba51b4ef59>
 
-The PCB in its enclosure:
+PCB in enclosure:
 ![PCB in enclosure](docs/image.png)
 
-The padlock with the latching solenoid:
+Padlock with latching solenoid:
 ![padlock](docs/image-1.png)
 
-## Board at a glance
+## Board specification
 
 | | |
 |---|---|
@@ -30,7 +28,7 @@ The padlock with the latching solenoid:
 | EDA | KiCad 10.0 |
 | Placements | 67 across 44 BOM lines |
 
-## How it works
+## Circuit description
 
 ### Power tree
 
@@ -44,38 +42,35 @@ USB-C (J1, 5V) ──> U1 BQ24040 ──> Li-ion cell (J2)
 
 `U1` (BQ24040) takes 5 V from USB-C and charges the cell. `R1` (560 Ω on ISET) sets the
 fast-charge current; `D1`/`D2` are its status outputs. `R2`/`R3` are the 5.1 k CC pulldowns
-that make a USB-C source hand over 5 V, and `U2` (USBLC6-2SC6) clamps ESD on D+/D−.
+that make a USB-C source supply 5 V, and `U2` (USBLC6-2SC6) clamps ESD on D+/D−.
 
-The 3.3 V rail comes off `U3` (TPS63020), a *buck-boost* on purpose: a Li-ion cell sags from
-4.2 V down past 3.3 V as it discharges, so a plain buck would brown out the ESP32 long
-before the cell was empty. Output is set by `R9` (1 M) / `R10` (180 k) around the 0.5 V
-reference → 3.28 V. Inductor is `L2` (2.2 µH).
+The 3.3 V rail comes from `U3` (TPS63020), a buck-boost. A Li-ion cell sags from 4.2 V past
+3.3 V as it discharges, so a buck-only regulator would brown out the ESP32 before the cell
+was empty. Output is set by `R9` (1 M) / `R10` (180 k) around the 0.5 V reference → 3.28 V.
+Inductor is `L2` (2.2 µH).
 
-For the solenoid, `U4` (TPS55340) boosts 3.3 V to 12 V through `L1` (10 µH) and `D3`, set by
-`R12` (86.6 k) / `R13` (10 k) around the 1.229 V reference → ≈11.9 V. It's a separate rail so
-the solenoid's inrush hits bulk caps (`C12`/`C14`/`C16`) and not the MCU supply.
+`U4` (TPS55340) boosts 3.3 V to 12 V through `L1` (10 µH) and `D3`, set by `R12` (86.6 k) /
+`R13` (10 k) around the 1.229 V reference → ≈11.9 V. It is a separate rail so solenoid inrush
+draws from the bulk caps (`C12`/`C14`/`C16`) rather than the MCU supply.
 
 ### Solenoid drive
 
 `CTRL_P` (GPIO40) → `R18` (220 Ω gate series) → `Q1` (AO3400A, low-side N-ch FET). `R17`
-(10 k) pulls the gate down so the coil is guaranteed off through boot and reset. `D4` (S1M)
-is the flyback diode across the coil. The coil itself lands on `TP1` (+12 V) and `TP2`
-(Q1 drain), the two loop test points on the board.
+(10 k) pulls the gate down so the coil is off through boot and reset. `D4` (S1M) is the
+flyback diode across the coil. The coil connects to `TP1` (+12 V) and `TP2` (Q1 drain).
 
-There is no hold-current limiting in hardware. The firmware caps how long the coil can stay
-energized instead (`MAX_OPEN_MS`, 5 s). If you drive `CTRL_P` from your own code, keep that
-limit.
+There is no hold-current limiting in hardware. The firmware caps coil energization time
+instead (`MAX_OPEN_MS`, 5 s). Any other code driving `CTRL_P` must enforce the same limit.
 
 ### GPS
 
 `U6` (SIM68M) streams NMEA at 9600 baud on the primary UART. `U8` (GPS1003) is the SMD
 antenna, fed through a pi matching network: shunt `C22`, series `R19` (0 Ω), shunt `L4`
-(18 nH). The 0 Ω / 0402 placeholders are there so the match can be tuned after measuring.
+(18 nH). The 0 Ω / 0402 placeholders allow the match to be tuned after measurement.
 
 ## Pin map (U5, ESP32-S3-WROOM-1)
 
-
-| Net | GPIO | Goes to |
+| Net | GPIO | Connects to |
 |---|---|---|
 | `CTRL_P` | 40 | Q1 gate (solenoid) via R18 |
 | `LI_CS` | 10 | LIS2DH12 chip select |
@@ -89,16 +84,17 @@ antenna, fed through a pi matching network: shunt `C22`, series `R19` (0 Ω), sh
 | `RST` | EN | SW2 tactile (R16 10 k pullup) |
 | `TM` | — | Q2 → status LED D5; unused by the current firmware |
 
-The accelerometer runs SPI mode 3 at 1 MHz; its INT1/INT2 pins are not connected, so motion
-detection is by polling, not interrupt.
+The accelerometer runs SPI mode 3 at 1 MHz. Its INT1/INT2 pins are not connected, so motion
+detection is by polling.
 
 ## Firmware
 
-The sketch is `firmware/wireslesslock_controller/wireslesslock_controller.ino`. It joins your
-WiFi, serves a page on port 80, and polls `/data` once a second for accelerometer + GPS
-values. No cloud, no backend; the lock is only reachable on your local network.
+The sketch is `firmware/wireslesslock_controller/wireslesslock_controller.ino`. It joins a
+WiFi network, serves a page on port 80, and polls `/data` once a second for accelerometer and
+GPS values. There is no cloud service or backend; the lock is reachable only on the local
+network.
 
-| Route | Method | Does |
+| Route | Method | Function |
 |---|---|---|
 | `/` | GET | Control page |
 | `/data` | GET | JSON: `locked`, `accel.x/y/z` (g), `gps.fix/sats/lat/lon` |
@@ -108,32 +104,32 @@ values. No cloud, no backend; the lock is only reachable on your local network.
 ### Flashing
 
 1. Arduino IDE → Boards Manager → install the esp32 package.
-2. Library Manager → install TinyGPSPlus (Mikal Hart). Everything else ships with the
-   ESP32 core.
+2. Library Manager → install TinyGPSPlus (Mikal Hart). The remaining dependencies are part of
+   the ESP32 core.
 3. Set `WIFI_SSID` / `WIFI_PASS` at the top of the sketch.
-4. Plug in over USB, pick the board and port under Tools, hit Upload.
+4. Connect over USB, select the board and port under Tools, and upload.
 
-If it sticks on `Connecting...`: hold BOOT (SW3), tap RESET (SW2), release BOOT. "Done
-uploading" means it's already running, so open the serial monitor at 115200 to see the IP
-address it got.
+If upload stalls at `Connecting...`: hold BOOT (SW3), tap RESET (SW2), release BOOT. After
+"Done uploading" the sketch is running; the serial monitor at 115200 baud prints the assigned
+IP address.
 
-## Building the board
+## Fabrication
 
-`gerbers.zip` is ready to send to a fab house as-is: 4 layer, 1.6 mm, 50 × 50 mm.
+`gerbers.zip` is the fab package: 4 layer, 1.6 mm, 50 × 50 mm.
 
-For assembly, `production/` holds what a PCBA service wants: `bom.csv`, `positions.csv`,
-`designators.csv`, `netlist.ipc`. These are generated by the KiCad Fabrication Toolkit
-plugin (settings in `fabrication-toolkit-options.json`); re-run the plugin rather than
-editing the CSVs by hand.
+For assembly, `production/` holds `bom.csv`, `positions.csv`, `designators.csv`, and
+`netlist.ipc`. These are generated by the KiCad Fabrication Toolkit plugin (settings in
+`fabrication-toolkit-options.json`); regenerate them with the plugin rather than editing the
+CSVs directly.
 
-Everything is LCSC/JLCPCB-orderable except the solenoid and the battery, which you source to
+All parts are LCSC/JLCPCB-orderable except the solenoid and the battery, which are selected to
 fit the padlock body.
 
 ## Bill of materials
 
 67 placements, 44 lines. Machine-readable copy with purchase links: [BOM.csv](BOM.csv).
-`production/bom.csv` is the plugin-generated original and stays the ground truth for
-designators and values; this table is that file plus what each part is for.
+`production/bom.csv` is the plugin-generated file and is the reference for designators and
+values; the table below adds the function of each part.
 
 | Designator | Qty | Value | Footprint | Function | LCSC |
 |---|---|---|---|---|---|
@@ -182,14 +178,14 @@ designators and values; this table is that file plus what each part is for.
 | `U7` | 1 | LIS2DH12TR | LGA-12_L2.0-W2.0-P0.50-BL | 3-axis accelerometer (SPI) - tamper / motion detection | [C110926](https://www.lcsc.com/search?q=C110926) |
 | `U8` | 1 | GPS1003 | ANT-SMD_L10.0-W3.0 | SMD GPS patch antenna, 1575.42 MHz | [C239243](https://www.lcsc.com/search?q=C239243) |
 
-Not on the BOM (source to fit your padlock):
+Not on the BOM, selected to fit the padlock:
 
 | Item | Notes |
 |---|---|
 | Latching solenoid | Driven from TP1/TP2 at 12 V, low-side switched |
 | Li-ion cell | Single cell, JST-PH 2-pin to J2 |
 
-## Repo layout
+## Repository layout
 
 ```
 wireslesslock.kicad_pro      project file
@@ -200,24 +196,18 @@ easyeda2kicad.*              project-local library: parts converted from LCSC/Ea
                              (BQ24040, TPS63020, TPS55340, GPS antenna, WSON/VSON pkgs)
 BOM.csv                      annotated BOM (this README's table)
 production/                  generated fab outputs (plugin output, not source)
-gerbers.zip                  fab package, ready to order
+gerbers.zip                  fab package
 firmware/                    ESP32-S3 Arduino sketch
 3dfiles/                     STEP export + padlock mechanism snapshots from Onshape
 docs/                        README images
 archive/                     timestamped project backups
 ```
 
-If you touch a symbol from `easyeda2kicad.kicad_sym`, keep its footprint in
-`easyeda2kicad.pretty/` and its STEP/WRL in `easyeda2kicad.3dshapes/` in sync. They travel
-together.
-
 ## Verifying changes
 
-There's no build or test command here. Open the project in KiCad and run ERC on the
-schematic and DRC on the board.
+There is no build or test command. Changes are verified by opening the project in KiCad and
+running ERC on the schematic and DRC on the board.
 
 ## License
 
 [MIT](LICENSE).
-
-Many thanks to the people that helped me make this.
