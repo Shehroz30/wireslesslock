@@ -12,7 +12,11 @@ lock frame.
 An ESP32-S3 hosts a web page over WiFi; the Open control energizes a latching solenoid in a
 padlock body. The page also reports accelerometer and GPS readings.
 
-Interconnect sheet (parts, wiring diagram, pin table): [connect.html](connect.html)
+Interconnect sheet (parts, wiring diagram, wire schedule, open items):
+
+![Interconnect & wire schedule](docs/connect.png)
+
+Source (styled, printable): [connect.html](connect.html)
 
 
 
