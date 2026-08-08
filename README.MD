@@ -6,6 +6,16 @@ padlock body. The page also reports accelerometer and GPS readings.
 The design covers two parts: the control PCB and the padlock. The rest is an existing bike
 lock frame.
 
+
+## How it works
+
+An ESP32-S3 hosts a web page over WiFi; the Open control energizes a latching solenoid in a
+padlock body. The page also reports accelerometer and GPS readings.
+
+Interconnect sheet (parts, wiring diagram, pin table): [connect.html](connect.html)
+
+
+
 Mechanical design (enclosure and padlock body) is in Onshape:
 <https://cad.onshape.com/documents/6c2c18833c9d8444570c43c7/w/6a4bb112d0b0db7159f785b0/e/d206a90808809049c3ae2997?renderMode=0&uiState=6a67dae82bed96ba51b4ef59>
 

@@ -1,0 +1,14 @@
+<svg fill="none" viewBox="0 0 800 400" width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+  <foreignObject width="100%" height="100%">
+    <div xmlns="./connect.html">
+      <style>
+        .box { background: #0d1117; color: #58a6ff; padding: 20px; font-family: sans-serif; border-radius: 6px; }
+      </style>
+      <div class="box">
+        <h2>Embedded Title</h2>
+        <p>This is styled HTML running inside your README.</p>
+      </div>
+    </div>
+  </foreignObject>
+</svg>
+
